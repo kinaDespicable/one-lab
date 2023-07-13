@@ -24,6 +24,12 @@ public final class UserStorage {
                 .findFirst();
     }
 
+    public Optional<User> getByUsername(String username) {
+        return storageUsers.stream()
+                .filter(user -> user.getUsername().equals(username))
+                .findFirst();
+    }
+
     public Optional<User> getByEntity(User entity) {
         return storageUsers.stream()
                 .filter(user -> user.equals(entity))

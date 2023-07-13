@@ -30,11 +30,6 @@ public class TopicStorage {
                 .findFirst();
     }
 
-    public boolean existsByTopicName(String topicName) {
-        return storage.stream()
-                .anyMatch(topic -> topic.getTopicName().equals(topicName));
-    }
-
     public Optional<Topic> getByEntity(Topic entity) {
         return storage.stream()
                 .filter(topic -> topic.equals(entity))

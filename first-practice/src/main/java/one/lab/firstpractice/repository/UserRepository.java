@@ -32,4 +32,8 @@ public class UserRepository {
         return userStorage.getStorageUsers();
     }
 
+    public Optional<User> findByUsername(String username){
+        return userStorage.getByUsername(username);
+    }
+
 }

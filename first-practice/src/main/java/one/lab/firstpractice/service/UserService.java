@@ -15,5 +15,6 @@ public interface UserService {
 
     void initUsers();
 
+    User fetchByUsername(String username);
 
 }

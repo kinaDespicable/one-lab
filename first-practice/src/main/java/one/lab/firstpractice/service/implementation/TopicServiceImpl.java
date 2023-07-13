@@ -9,6 +9,8 @@ import one.lab.firstpractice.repository.TopicRepository;
 import one.lab.firstpractice.service.TopicService;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+
 import static one.lab.firstpractice.storage.TopicStorage.TOPIC_SEQUENCE;
 
 @Slf4j
@@ -25,6 +27,7 @@ public class TopicServiceImpl implements TopicService {
         Topic topic = Topic.builder()
                 .id(TOPIC_SEQUENCE)
                 .topicName(dto.getTopicName())
+                .newsList(new ArrayList<>())
                 .build();
         log.info(TOPIC_SERVICE_PREFIX + "Topic with id: [" + TOPIC_SEQUENCE + "] was created.");
         TOPIC_SEQUENCE++;

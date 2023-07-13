@@ -10,6 +10,7 @@ import one.lab.firstpractice.repository.UserRepository;
 import one.lab.firstpractice.service.UserService;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static one.lab.firstpractice.storage.UserStorage.USER_SEQUENCE;
@@ -35,6 +36,7 @@ public class UserServiceImpl implements UserService {
                 .lastName(dto.getLastName())
                 .admin(dto.getAdmin())
                 .author(dto.getAuthor())
+                .writtenNews(new ArrayList<>())
                 .build();
 
         log.info(USER_SERVICE_PREFIX + "User with id: [" + USER_SEQUENCE + "] was created.");
@@ -59,6 +61,16 @@ public class UserServiceImpl implements UserService {
                 });
     }
 
+    @Override
+    public User fetchByUsername(String username) {
+        log.info(USER_SERVICE_PREFIX + "Fetching by username.");
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> {
+                    log.error(USER_SERVICE_PREFIX + "Fetching by username process has been failed.");
+                    return new ResourceNotFoundException("User with username:[" + username + "] not found.");
+                });
+    }
+
     private void checkUserExistence(String username) {
         if (userRepository.existsByUsername(username)) {
             log.error("[USER SERVICE] User creation was failed. Resource already exists.");
@@ -67,7 +79,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public void initUsers() {
-        for (int i = 0; i < 5; i++) {
+        for (int i = 1; i <= 5; i++) {
 
             boolean admin = i % 5 == 0;
             boolean author = i % 2 == 0;

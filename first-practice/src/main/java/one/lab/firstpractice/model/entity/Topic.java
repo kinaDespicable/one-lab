@@ -15,7 +15,7 @@ public class Topic {
 
     private Long id;
     private String topicName;
-    private List<News> news = new ArrayList<>(); // One-to-Many
+    private List<News> newsList = new ArrayList<>(); // One-to-Many
 
     @Override
     public boolean equals(Object o) {
