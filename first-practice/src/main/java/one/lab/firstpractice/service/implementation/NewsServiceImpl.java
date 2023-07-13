@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Random;
 
 import static one.lab.firstpractice.storage.NewsStorage.NEWS_SEQUENCE;
 
@@ -28,7 +29,6 @@ public class NewsServiceImpl implements NewsService {
     private static final Long AUTHOR_WITH_ID_4 = 4L;
     private static final Long TOPIC_WITH_ID_1 = 1L;
     private static final Long TOPIC_WITH_ID_2 = 2L;
-    private static final int DEFAULT_LIKES = 0;
 
     private final NewsRepository newsRepository;
     private final UserService userService;
@@ -46,9 +46,10 @@ public class NewsServiceImpl implements NewsService {
                 .content(dto.getContent())
                 .author(author)
                 .topic(topic)
-                .likes(DEFAULT_LIKES)
+                .likes(new Random().nextInt(1, 15))
                 .publishedAt(LocalDate.now())
                 .build();
+
 
         log.info(NEWS_SERVICE_PREFIX + "News with id: [" + NEWS_SEQUENCE + "] was created.");
         NEWS_SEQUENCE++;
@@ -110,6 +111,13 @@ public class NewsServiceImpl implements NewsService {
                     .build();
             createNews(dto);
         }
+        NewsDTO dto = NewsDTO.builder()
+                .title("Title " + 6)
+                .content("Content of the news #" + 6)
+                .author(userService.fetchById(2L).getUsername())
+                .topic(topicService.fetchById(1L).getTopicName())
+                .build();
+        createNews(dto);
     }
 
 
