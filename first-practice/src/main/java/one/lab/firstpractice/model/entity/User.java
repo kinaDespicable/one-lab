@@ -1,15 +1,15 @@
-package one.lab.firstpractice.model;
+package one.lab.firstpractice.model.entity;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Data
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
@@ -18,8 +18,8 @@ public class User {
     private String username;
     private String firstName;
     private String lastName;
-    private Boolean isAdmin;
-    private Boolean isAuthor;
+    private Boolean admin;
+    private Boolean author;
     private List<News> writtenNews = new ArrayList<>(); // One-to-many
 
     @Override
@@ -33,4 +33,6 @@ public class User {
     public int hashCode() {
         return Objects.hash(id, username);
     }
+
+
 }

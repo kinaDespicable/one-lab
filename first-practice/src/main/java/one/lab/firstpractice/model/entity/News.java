@@ -1,13 +1,13 @@
-package one.lab.firstpractice.model;
+package one.lab.firstpractice.model.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
+@Data
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class News {
