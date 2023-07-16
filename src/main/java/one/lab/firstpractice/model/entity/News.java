@@ -2,7 +2,7 @@ package one.lab.firstpractice.model.entity;
 
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Data
@@ -16,7 +16,7 @@ public class News {
     private String title;
     private String content;
     private long likes;
-    private LocalDate publishedAt;
+    private LocalDateTime publishedAt;
     private User author; // Many-to-one
     private Topic topic; // Many-to-one
 
