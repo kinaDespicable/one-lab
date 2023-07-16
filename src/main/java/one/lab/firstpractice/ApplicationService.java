@@ -10,25 +10,23 @@ import org.springframework.stereotype.Service;
 @Service
 public class ApplicationService {
 
-    private static final String TOPIC_NAME = "Topic name 2";
-
     @Bean
-    CommandLineRunner commandLineRunner(UserService userService,
-                                        TopicService topicService,
-                                        NewsService newsService) {
+    public CommandLineRunner commandLineRunner(UserService userService,
+                                               TopicService topicService,
+                                               NewsService newsService) {
         return args -> {
-            userService.initUsers();
+            userService.fetchById(1L);
+            userService.fetchByUsername("johnDoe");
             userService.fetchAll();
-            userService.fetchById(2L);
 
-            topicService.initTopics();
             topicService.fetchById(1L);
-            topicService.fetchByTopicName(TOPIC_NAME);
+            topicService.fetchByTopicName("Technologies");
 
-            newsService.initNews();
-            newsService.fetchById(1L);
-            newsService.fetchAll();
+            newsService.fetchByAuthorUsername("johnDoe");
+            newsService.fetchByTopicName("Sport");
             newsService.fetchNewsByMostLikes();
+            newsService.fetchCountByTopic("War");
         };
     }
+
 }
