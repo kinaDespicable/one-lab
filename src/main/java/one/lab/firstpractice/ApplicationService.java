@@ -17,21 +17,18 @@ public class ApplicationService {
                                         TopicService topicService,
                                         NewsService newsService) {
         return args -> {
-            System.out.println("------------------------ USER SERVICE ------------------------");
             userService.initUsers();
-            System.out.println(userService.fetchAll());
-            System.out.println(userService.fetchById(2L));
+            userService.fetchAll();
+            userService.fetchById(2L);
 
-            System.out.println("------------------------ TOPIC SERVICE ------------------------");
             topicService.initTopics();
-            System.out.println(topicService.fetchById(1L));
-            System.out.println(topicService.fetchByTopicName(TOPIC_NAME));
+            topicService.fetchById(1L);
+            topicService.fetchByTopicName(TOPIC_NAME);
 
-            System.out.println("------------------------ NEWS SERVICE ------------------------");
             newsService.initNews();
-            System.out.println(newsService.fetchById(1L));
-            System.out.println(newsService.fetchAll());
-            System.out.println(newsService.fetchNewsByMostLikes());
+            newsService.fetchById(1L);
+            newsService.fetchAll();
+            newsService.fetchNewsByMostLikes();
         };
     }
 }
