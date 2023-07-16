@@ -1,11 +1,9 @@
 package one.lab.firstpractice.repository;
 
 import lombok.RequiredArgsConstructor;
-import one.lab.firstpractice.exception.ResourceNotFoundException;
+import one.lab.firstpractice.mapper.NewsMapper;
 import one.lab.firstpractice.model.entity.News;
-import one.lab.firstpractice.model.entity.Topic;
-import one.lab.firstpractice.model.entity.User;
-import one.lab.firstpractice.storage.NewsStorage;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,36 +13,48 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class NewsRepository {
 
-    private final NewsStorage newsStorage;
+    private static final String FIND_ALL = "SELECT * FROM news";
+    private static final String FIND_BY_ID = "SELECT * FROM news WHERE news_id=?";
+    private static final String FIND_BY_TITLE = "SELECT * FROM news WHERE title=?";
+    private static final String FIND_MOST_LIKED_NEWS = "SELECT * FROM news ORDER BY likes DESC LIMIT 1";
+    private static final String FIND_BY_TOPIC = "SELECT n.news_id, n.content, n.title, n.likes, n.published_at, n.author_id, t.topic_id FROM topics t LEFT JOIN news n ON t.topic_id= n.topic_id WHERE t.topic_name= ?";
+    private static final String FIND_BY_AUTHOR = "SELECT n.news_id, n.content, n.title, n.likes, n.published_at, n.author_id FROM news n LEFT JOIN users u ON n.author_id = u.user_id WHERE u.username = ?";
+    private static final String FIND_NEWS_COUNT_BY_TOPIC = "SELECT COUNT(n.topic_id) AS news_count FROM topics t LEFT JOIN news n ON t.topic_id= n.topic_id WHERE t.topic_name= ?";
 
-    public News save(News entity) {
-        newsStorage.addNewsToStorage(entity);
-        return newsStorage.getByEntity(entity)
-                .orElseThrow(() -> new ResourceNotFoundException("Save error."));
+    private final JdbcTemplate jdbcTemplate;
+    private final NewsMapper newsMapper;
+
+
+    public List<News> findAll() {
+        return jdbcTemplate.query(FIND_ALL, newsMapper);
     }
 
     public Optional<News> findById(Long id) {
-        return newsStorage.getById(id);
-    }
-
-    public List<News> findAll() {
-        return newsStorage.getAll();
+        return jdbcTemplate.query(FIND_BY_ID, newsMapper, id)
+                .stream().findFirst();
     }
 
     public Optional<News> findByTitle(String title) {
-        return newsStorage.getByTitle(title);
+        return jdbcTemplate.query(FIND_BY_TITLE, newsMapper, title)
+                .stream().findFirst();
     }
 
-    public Optional<News> findNewsByMostLikes() {
-        return newsStorage.getMostLikedNews();
+    public List<News> findByTopic(String topicName) {
+        return jdbcTemplate.query(FIND_BY_TOPIC, newsMapper, topicName);
     }
 
-    public List<News> findNewsByTopic(Topic topic) {
-        return newsStorage.getNewsByTopic(topic);
+    public List<News> findByAuthor(String username) {
+        return jdbcTemplate.query(FIND_BY_AUTHOR, newsMapper, username);
     }
 
-    public List<News> findNewsByAuthor(User author){
-        return newsStorage.getNewsByAuthor(author);
+    public Optional<News> findByMostLikes() {
+        return jdbcTemplate.query(FIND_MOST_LIKED_NEWS, newsMapper)
+                .stream().findFirst();
     }
+
+    public Integer findCountByTopicName(String topicName) {
+        return jdbcTemplate.queryForObject(FIND_NEWS_COUNT_BY_TOPIC, Integer.class, topicName);
+    }
+
 
 }

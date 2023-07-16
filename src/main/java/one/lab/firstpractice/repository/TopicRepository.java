@@ -1,9 +1,9 @@
 package one.lab.firstpractice.repository;
 
 import lombok.RequiredArgsConstructor;
-import one.lab.firstpractice.exception.ResourceNotFoundException;
+import one.lab.firstpractice.mapper.TopicMapper;
 import one.lab.firstpractice.model.entity.Topic;
-import one.lab.firstpractice.storage.TopicStorage;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -12,20 +12,21 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TopicRepository {
 
-    private final TopicStorage topicStorage;
+    private static final String FIND_BY_ID = "SELECT * FROM topics WHERE topic_id = ?";
+    private static final String FIND_BY_TOPIC_NAME = "SELECT * FROM topics WHERE topic_name = ?";
 
-    public Topic save(Topic entity) {
-        topicStorage.addTopicToStorage(entity);
-        return topicStorage.getByEntity(entity)
-                .orElseThrow(() -> new ResourceNotFoundException("No topic found."));
-    }
+    private final JdbcTemplate jdbcTemplate;
+    private final TopicMapper topicMapper;
+
 
     public Optional<Topic> findById(Long id) {
-        return topicStorage.getById(id);
+        return jdbcTemplate.query(FIND_BY_ID, topicMapper, id)
+                .stream().findFirst();
     }
 
     public Optional<Topic> findByTopicName(String topicName) {
-        return topicStorage.getByTopicName(topicName);
+        return jdbcTemplate.query(FIND_BY_TOPIC_NAME, topicMapper, topicName)
+                .stream().findFirst();
     }
 
 
