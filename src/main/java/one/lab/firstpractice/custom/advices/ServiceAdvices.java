@@ -36,7 +36,7 @@ public class ServiceAdvices {
         }
     }
 
-    private Method getMethod(Class<?> clazz, String methodName, Object[] args) {
+    public Method getMethod(Class<?> clazz, String methodName, Object[] args) {
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
             if (method.getName().equals(methodName) && method.getParameterTypes().length == args.length) {

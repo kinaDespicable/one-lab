@@ -39,7 +39,7 @@ public class NewsServiceImpl implements NewsService {
 
         News news1 = News.builder()
                 .title("Example title")
-                .content("Lorem ipsum dolores set amin le quote")
+                .content("Lorem ipsum dolores sit amin le quote")
                 .author(author)
                 .likes(0)
                 .publishedAt(LocalDateTime.now())
