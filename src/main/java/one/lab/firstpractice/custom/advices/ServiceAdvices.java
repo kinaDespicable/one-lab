@@ -2,65 +2,48 @@ package one.lab.firstpractice.custom.advices;
 
 import lombok.extern.slf4j.Slf4j;
 import one.lab.firstpractice.custom.annotation.Loggable;
-import one.lab.firstpractice.custom.annotation.Timed;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.lang.reflect.Method;
 
 @Slf4j
 @Aspect
 @Component
 public class ServiceAdvices {
 
-    public static final String BEFORE_ADVICE = "[BEFORE ADVICE LOGGING] ";
-    public static final String AFTER_RETURNING_ADVICE = "[AFTER_RETURNING ADVICE LOGGING] ";
-    public static final String AROUND_ADVICE = "[AROUND LOGGING] ";
-
-
-    @Before("@annotation(loggable)")
-    public void beforeAdvice(JoinPoint joinPoint, Loggable loggable) {
-
-        String className = joinPoint.getTarget().getClass().getSimpleName();
-        String methodName = joinPoint.getSignature().getName();
-        String timestamp = LocalDateTime.now().toString();
-
-        log.info(BEFORE_ADVICE + "'{}'.'{}' started it's execution. Timestamp: {}",
-                className,
-                methodName,
-                timestamp);
-    }
-
     @AfterReturning("@annotation(loggable)")
     public void afterReturningAdvice(JoinPoint joinPoint, Loggable loggable) {
 
-        String className = joinPoint.getTarget().getClass().getSimpleName();
         String methodName = joinPoint.getSignature().getName();
-        String timestamp = LocalDateTime.now().toString();
+        Class<?> targetClass = joinPoint.getTarget().getClass();
 
-        log.info(AFTER_RETURNING_ADVICE + "{}.{} completed execution. Timestamp: {}",
-                className, methodName, timestamp);
+        Method method = getMethod(targetClass, methodName, joinPoint.getArgs());
+        if (method != null) {
+            Transactional transactionalAnnotation =
+                    AnnotationUtils.findAnnotation(method, org.springframework.transaction.annotation.Transactional.class);
+
+            if (transactionalAnnotation != null) {
+                Propagation propagation = transactionalAnnotation.propagation();
+                boolean readOnly = transactionalAnnotation.readOnly();
+                log.info("'{}.{}' - propagation: {}, readOnly: {}", targetClass.getSimpleName(), methodName, propagation, readOnly);
+            }
+        }
     }
 
-    @Around("@annotation(timed)")
-    public Object timedAdvice(ProceedingJoinPoint joinPoint, Timed timed) throws Throwable {
-
-        String className = joinPoint.getTarget().getClass().getSimpleName();
-        String methodName = joinPoint.getSignature().getName();
-        long start = System.currentTimeMillis();
-
-        Object proceed = joinPoint.proceed();
-
-        long executionTime = System.currentTimeMillis() - start;
-
-        log.info(AROUND_ADVICE + "Execution Time of '{}'.'{}': {} ms.", className, methodName, executionTime);
-
-        return proceed;
+    private Method getMethod(Class<?> clazz, String methodName, Object[] args) {
+        Method[] methods = clazz.getDeclaredMethods();
+        for (Method method : methods) {
+            if (method.getName().equals(methodName) && method.getParameterTypes().length == args.length) {
+                return method;
+            }
+        }
+        return null;
     }
 
 }

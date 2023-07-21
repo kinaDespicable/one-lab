@@ -1,45 +1,22 @@
 package one.lab.firstpractice.repository;
 
-import lombok.RequiredArgsConstructor;
-import one.lab.firstpractice.mapper.UserMapper;
 import one.lab.firstpractice.model.entity.User;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
 import java.util.Optional;
 
-@Repository
-@RequiredArgsConstructor
-public class UserRepository {
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    private static final String FIND_ALL = "SELECT * FROM users";
-    private static final String FIND_BY_ID = "SELECT * FROM users WHERE user_id=?";
-    private static final String FIND_BY_USERNAME = "SELECT * FROM users WHERE username=?";
+    @Query(value = "SELECT * FROM users WHERE USERNAME = ?", nativeQuery = true)
+    Optional<User> findByUsername(String username);
 
-    private final JdbcTemplate jdbcTemplate;
-    private final UserMapper userMapper;
+    @Query(value = "SELECT * FROM users WHERE admin = true", nativeQuery = true)
+    Page<User> findUsersByAdminIsTrue(Pageable pageable);
 
-
-    public Optional<User> findById(Long id) {
-        return jdbcTemplate.query(FIND_BY_ID, userMapper, id)
-                .stream()
-                .findFirst();
-    }
-
-    public boolean existsByUsername(String username) {
-        Integer count = jdbcTemplate.queryForObject(FIND_BY_USERNAME, Integer.class, username);
-        return count != null && count > 0;
-    }
-
-    public List<User> findAll() {
-        return jdbcTemplate.query(FIND_ALL, userMapper);
-    }
-
-    public Optional<User> findByUsername(String username) {
-        return jdbcTemplate.query(FIND_BY_USERNAME, userMapper, username)
-                .stream()
-                .findFirst();
-    }
+    @Query(value = "SELECT * FROM users WHERE author = true", nativeQuery = true)
+    Page<User> findUsersByAuthorIsTrue(Pageable pageable);
 
 }

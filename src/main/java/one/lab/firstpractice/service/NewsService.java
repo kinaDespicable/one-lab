@@ -1,20 +1,21 @@
 package one.lab.firstpractice.service;
 
 import one.lab.firstpractice.model.entity.News;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface NewsService {
+
+    News create(News news);
 
     News fetchById(Long id);
 
     News fetchByTitle(String title);
 
-    List<News> fetchAll();
+    Page<News> fetchAll();
 
-    List<News> fetchByTopicName(String topicName);
+    Page<News> fetchByTopicName(String topicName);
 
-    List<News> fetchByAuthorUsername(String username);
+    Page<News> fetchByAuthorUsername(String username);
 
     News fetchNewsByMostLikes();
 

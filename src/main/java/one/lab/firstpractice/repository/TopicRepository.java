@@ -1,33 +1,14 @@
 package one.lab.firstpractice.repository;
 
-import lombok.RequiredArgsConstructor;
-import one.lab.firstpractice.mapper.TopicMapper;
 import one.lab.firstpractice.model.entity.Topic;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 
-@Repository
-@RequiredArgsConstructor
-public class TopicRepository {
+public interface TopicRepository extends JpaRepository<Topic, Long> {
 
-    private static final String FIND_BY_ID = "SELECT * FROM topics WHERE topic_id = ?";
-    private static final String FIND_BY_TOPIC_NAME = "SELECT * FROM topics WHERE topic_name = ?";
-
-    private final JdbcTemplate jdbcTemplate;
-    private final TopicMapper topicMapper;
-
-
-    public Optional<Topic> findById(Long id) {
-        return jdbcTemplate.query(FIND_BY_ID, topicMapper, id)
-                .stream().findFirst();
-    }
-
-    public Optional<Topic> findByTopicName(String topicName) {
-        return jdbcTemplate.query(FIND_BY_TOPIC_NAME, topicMapper, topicName)
-                .stream().findFirst();
-    }
-
+    @Query(value = "SELECT * FROM topics WHERE topic_name = ?", nativeQuery = true)
+    Optional<Topic> findByTopicName(String topicName);
 
 }

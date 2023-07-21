@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS  topics(
 CREATE TABLE IF NOT EXISTS news(
     news_id BIGINT AUTO_INCREMENT NOT NULL,
     title VARCHAR(255) NOT NULL,
-    content TEXT,
+    content VARCHAR(1000),
     likes BIGINT NOT NULL DEFAULT 0,
     published_at DATETIME,
     author_id BIGINT,

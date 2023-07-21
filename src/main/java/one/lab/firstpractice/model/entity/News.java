@@ -1,24 +1,42 @@
 package one.lab.firstpractice.model.entity;
 
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-@Data
+@Entity
+@Getter
+@Setter
 @Builder
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "NEWS")
 public class News {
 
+    @Id
+    @Column(name = "NEWS_ID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "TITLE")
     private String title;
+
+    @Column(name = "CONTENT")
     private String content;
+
+    @Column(name = "LIKES")
     private long likes;
+
+    @Column(name = "PUBLISHED_AT")
     private LocalDateTime publishedAt;
-    private User author; // Many-to-one
-    private Topic topic; // Many-to-one
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private User author;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Topic topic;
 
     @Override
     public boolean equals(Object o) {
