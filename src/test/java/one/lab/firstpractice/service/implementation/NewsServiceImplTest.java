@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.kafka.core.KafkaTemplate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 class NewsServiceImplTest {
@@ -32,6 +34,9 @@ class NewsServiceImplTest {
 
     @Mock
     UserService userService;
+
+    @Mock
+    private KafkaTemplate<String, String> kafkaTemplate;
 
     @InjectMocks
     NewsServiceImpl newsServiceImpl;
@@ -46,23 +51,29 @@ class NewsServiceImplTest {
         // Arrange
         User mockUser = new User(1L, "johnDoe", "John", "Doe", false, true, new ArrayList<>());
         Topic mockTopic = new Topic(1L, "Topic Title", new ArrayList<>());
-        News newsToCreate = new News();
 
         // Act
-        when(userService.fetchById(anyLong())).thenReturn(mockUser);
-        when(topicService.fetchById(anyLong())).thenReturn(mockTopic);
-        when(newsRepository.save(any(News.class))).thenAnswer(invocation -> {
-            News savedNews = invocation.getArgument(0);
-            savedNews.setId(1L);
-            return savedNews;
-        });
-        News createdNews = newsServiceImpl.create(newsToCreate);
+        News news = News.builder()
+                .title("Example title")
+                .content("Lorem ipsum dolores sit amin le quote")
+                .author(mockUser)
+                .likes(0)
+                .publishedAt(LocalDateTime.now())
+                .topic(mockTopic)
+                .build();
+
+        when(userService.fetchById(4L)).thenReturn(mockUser);
+        when(topicService.fetchById(2L)).thenReturn(mockTopic);
+        when(newsRepository.save(any(News.class))).thenReturn(news);
+
+        News createdNews = newsServiceImpl.create(news);
 
         // Assert
-        assertThat(createdNews).isNotNull();
-        assertThat(createdNews.getAuthor()).isEqualTo(mockUser);
-        assertThat(createdNews.getTopic()).isEqualTo(mockTopic);
-        verify(newsRepository, times(1)).save(createdNews);
+        assertEquals(0, createdNews.getLikes(), "Likes should be initialized to 0");
+        verify(userService, times(1)).fetchById(4L);
+        verify(topicService, times(1)).fetchById(2L);
+        verify(newsRepository, times(1)).save(any(News.class));
+        verify(kafkaTemplate, times(1)).send(eq("News"), anyString());
     }
 
     @Test

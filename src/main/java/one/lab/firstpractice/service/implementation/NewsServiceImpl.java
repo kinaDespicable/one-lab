@@ -12,6 +12,7 @@ import one.lab.firstpractice.service.TopicService;
 import one.lab.firstpractice.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ public class NewsServiceImpl implements NewsService {
     private final NewsRepository newsRepository;
     private final TopicService topicService;
     private final UserService userService;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
     @Override
     @Loggable
@@ -46,7 +48,10 @@ public class NewsServiceImpl implements NewsService {
                 .topic(topic)
                 .build();
 
-        return newsRepository.save(news1);
+        newsRepository.save(news1);
+        News savedNews = fetchByTitle("Example title");
+        kafkaTemplate.send("News", "Id of newly created news is [" + savedNews.getId() + "]");
+        return savedNews;
     }
 
     @Override
