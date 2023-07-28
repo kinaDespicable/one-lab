@@ -1,8 +1,11 @@
 package one.lab.firstpractice.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -13,10 +16,13 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "NEWS")
-public class News {
+public class News implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 2L;
 
     @Id
-    @Column(name = "NEWS_ID")
+    @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -30,6 +36,9 @@ public class News {
     private long likes;
 
     @Column(name = "PUBLISHED_AT")
+    @JsonFormat(shape = JsonFormat.Shape.STRING ,
+            pattern = "dd-MM-YYYY hh:mm:ss" ,
+            timezone="UTC")
     private LocalDateTime publishedAt;
 
     @ManyToOne(fetch = FetchType.EAGER)

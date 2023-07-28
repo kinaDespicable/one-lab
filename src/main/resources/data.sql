@@ -1,23 +1,70 @@
-INSERT INTO USERS (username, first_name, last_name, admin, author)
-VALUES ( 'adminUser', 'Admin', 'User', true, true );
+INSERT INTO ROLES(ROLE_NAME)
+VALUES('ROLE_ADMIN');
 
-INSERT INTO USERS (username, first_name, last_name, admin, author)
-VALUES ( 'johnDoe', 'John', 'Doe', false, true );
+INSERT INTO ROLES(ROLE_NAME)
+VALUES('ROLE_AUTHOR');
 
-INSERT INTO USERS (username, first_name, last_name, admin, author)
-VALUES ( 'janeDoe', 'Jane', 'Doe', false, false );
+INSERT INTO ROLES(ROLE_NAME)
+VALUES('ROLE_USER');
 
-INSERT INTO USERS (username, first_name, last_name, admin, author)
-VALUES ( 'adamSmith', 'Adam', 'Smith', false, true );
 
-INSERT INTO USERS (username, first_name, last_name, admin, author)
-VALUES ( 'SLJ', 'Samuel', 'Jackson', false, false );
+INSERT INTO USERS (username, password, first_name, last_name)
+VALUES ( 'adminUser','$2a$12$E7z3QBrzBSXSFPh7kSMrV.L4RwaOwrN2GtUyBfapH9VtpKoPzeE0a', 'Admin', 'User');
 
-INSERT INTO USERS (username, first_name, last_name, admin, author)
-VALUES ( 'tLasso', 'Ted', 'Lasso', false, false );
+INSERT INTO USERS (username, password, first_name, last_name)
+VALUES ( 'johnDoe','$2a$12$/reLQ9FKAX2spmhAJx1WduqSsJI4VhF0sldPKBHSTFZOB80bI/J22', 'John', 'Doe');
 
-INSERT INTO USERS (username, first_name, last_name, admin, author)
-VALUES ( 'KT', 'Kevin', 'Trent', false, true );
+INSERT INTO USERS (username, password, first_name, last_name)
+VALUES ( 'janeDoe','$2a$12$QX.6YXoENGtx5JsK5JnheOhKWNqK6oDv3HcSzALivhlmK9eKZU/hG', 'Jane', 'Doe');
+
+INSERT INTO USERS (username, password, first_name, last_name)
+VALUES ( 'adamSmith','$2a$12$R3SZObi/TetERzXMqJsbPOe3ns7I0.RFUqhbjio0oyGq2.bNO0nCO', 'Adam', 'Smith');
+
+INSERT INTO USERS (username, password, first_name, last_name)
+VALUES ( 'SLJ','$2a$12$/YgBPtH1rz.UrcKQxIjMgudEuw7Rf9z7zu1LnwaxB3.096ba0P9DC', 'Samuel', 'Jackson');
+
+INSERT INTO USERS (username, password, first_name, last_name)
+VALUES ( 'tLasso','$2a$12$BE1kFrdT5h5nMNvgOMg9jOEjI50k15O0APoCHUXTgtPu9.KFDS3Nq', 'Ted', 'Lasso');
+
+INSERT INTO USERS (username, password, first_name, last_name)
+VALUES ( 'KT','$2a$12$y33OT2XNGtD9WGgfJGg00.s.8nPMQ7wDw7e0cvXl7hQISrdM3raui', 'Kevin', 'Trent');
+
+
+INSERT INTO USERS_ROLES(USER_ID, ROLE_ID)
+VALUES (1,1);
+
+INSERT INTO USERS_ROLES(USER_ID, ROLE_ID)
+VALUES (1,2);
+
+INSERT INTO USERS_ROLES(USER_ID, ROLE_ID)
+VALUES (1,3);
+
+INSERT INTO USERS_ROLES(USER_ID, ROLE_ID)
+VALUES (2,2);
+
+INSERT INTO USERS_ROLES(USER_ID, ROLE_ID)
+VALUES (2,3);
+
+INSERT INTO USERS_ROLES(USER_ID, ROLE_ID)
+VALUES (3,3);
+
+INSERT INTO USERS_ROLES(USER_ID, ROLE_ID)
+VALUES (4,2);
+
+INSERT INTO USERS_ROLES(USER_ID, ROLE_ID)
+VALUES (4,3);
+
+INSERT INTO USERS_ROLES(USER_ID, ROLE_ID)
+VALUES (5,3);
+
+INSERT INTO USERS_ROLES(USER_ID, ROLE_ID)
+VALUES (6,3);
+
+INSERT INTO USERS_ROLES(USER_ID, ROLE_ID)
+VALUES (7,2);
+
+INSERT INTO USERS_ROLES(USER_ID, ROLE_ID)
+VALUES (7,3);
 
 
 INSERT INTO TOPICS (TOPIC_NAME)

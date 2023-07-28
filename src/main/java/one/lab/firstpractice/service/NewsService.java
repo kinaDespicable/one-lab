@@ -1,24 +1,26 @@
 package one.lab.firstpractice.service;
 
+import one.lab.firstpractice.model.dto.request.NewsRequest;
+import one.lab.firstpractice.model.dto.response.CreatedResponse;
+import one.lab.firstpractice.model.dto.response.news.NewsResponse;
 import one.lab.firstpractice.model.entity.News;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
 
 public interface NewsService {
 
-    News create(News news);
+    CreatedResponse create(NewsRequest newsRequest, Authentication authentication);
 
-    News fetchById(Long id);
+    NewsResponse fetchById(Long id);
 
-    News fetchByTitle(String title);
+    NewsResponse fetchByTitle(String title);
 
-    Page<News> fetchAll();
+    Page<NewsResponse> fetchAll();
 
-    Page<News> fetchByTopicName(String topicName);
+    Page<NewsResponse> fetchByTopicName(String topicName);
 
-    Page<News> fetchByAuthorUsername(String username);
+    Page<NewsResponse> fetchByAuthorUsername(String username);
 
-    News fetchNewsByMostLikes();
-
-    Integer fetchCountByTopic(String topicName);
+    NewsResponse fetchNewsByMostLikes();
 
 }

@@ -2,7 +2,11 @@ package one.lab.firstpractice.service.implementation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import one.lab.firstpractice.custom.annotation.Loggable;
+import one.lab.firstpractice.exception.exceptions.NoAuthorityException;
+import one.lab.firstpractice.exception.exceptions.ResourceNotFoundException;
+import one.lab.firstpractice.model.dto.request.NewsRequest;
+import one.lab.firstpractice.model.dto.response.CreatedResponse;
+import one.lab.firstpractice.model.dto.response.news.NewsResponse;
 import one.lab.firstpractice.model.entity.News;
 import one.lab.firstpractice.model.entity.Topic;
 import one.lab.firstpractice.model.entity.User;
@@ -11,93 +15,108 @@ import one.lab.firstpractice.service.NewsService;
 import one.lab.firstpractice.service.TopicService;
 import one.lab.firstpractice.service.UserService;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static one.lab.firstpractice.utils.Page.getPageable;
+import static org.springframework.http.HttpStatus.CREATED;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class NewsServiceImpl implements NewsService {
 
+    private static final int DEFAULT_LIKES = 0;
+
     private final NewsRepository newsRepository;
-    private final TopicService topicService;
     private final UserService userService;
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final TopicService topicService;
+
 
     @Override
-    @Loggable
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    public News create(News news) {
-        User author = userService.fetchById(4L);
-        Topic topic = topicService.fetchById(2L);
+    public CreatedResponse create(NewsRequest newsRequest, Authentication authentication) {
+        isAuthor(authentication);
 
-        News news1 = News.builder()
-                .title("Example title")
-                .content("Lorem ipsum dolores sit amin le quote")
-                .author(author)
-                .likes(0)
+        User author = userService.fetchByUsername((String) authentication.getPrincipal());
+        Topic topic = topicService.fetchByTopicName(newsRequest.getTopic().trim());
+        News news = News.builder()
+                .title(newsRequest.getTitle().trim())
+                .content(newsRequest.getContent().trim())
+                .likes(DEFAULT_LIKES)
                 .publishedAt(LocalDateTime.now())
+                .author(author)
                 .topic(topic)
                 .build();
 
-        newsRepository.save(news1);
-        News savedNews = fetchByTitle("Example title");
-        kafkaTemplate.send("News", "Id of newly created news is [" + savedNews.getId() + "]");
-        return savedNews;
+        NewsResponse response = NewsResponse.mapToResponse(newsRepository.save(news));
+
+        return CreatedResponse.builder()
+                .status(CREATED)
+                .statusCode(CREATED.value())
+                .timestamp(LocalDateTime.now())
+                .data(response)
+                .build();
     }
 
     @Override
-    @Loggable
-    @Transactional(propagation = Propagation.SUPPORTS)
-    public News fetchById(Long id) {
-        return newsRepository.findById(id).orElse(new News());
+    public NewsResponse fetchById(Long id) {
+        News fetchedNews = newsRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not found requested news."));
+        return NewsResponse.mapToResponse(fetchedNews);
     }
 
     @Override
-    @Loggable
-    @Transactional(propagation = Propagation.SUPPORTS)
-    public News fetchByTitle(String title) {
-        return newsRepository.findByTitle(title).orElse(new News());
+    public NewsResponse fetchByTitle(String title) {
+        News news = newsRepository.findByTitle(title.trim())
+                .orElseThrow(() -> new ResourceNotFoundException("News with title:" + title + " does not exist"));
+        return NewsResponse.mapToResponse(news);
     }
 
     @Override
-    public Page<News> fetchAll() {
-        Pageable pageable = getPageable();
-        return newsRepository.findAll(pageable);
+    public Page<NewsResponse> fetchAll() {
+        Page<News> newsPage = newsRepository.findAll(getPageable());
+        return mapToNewsResponsePage(newsPage);
     }
 
     @Override
-    public Page<News> fetchByTopicName(String topicName) {
-        Topic topic = topicService.fetchByTopicName(topicName);
-        Pageable pageable = getPageable();
-        return newsRepository.findAllByTopic(pageable, topic);
+    public Page<NewsResponse> fetchByTopicName(String topicName) {
+        Topic topic = topicService.fetchByTopicName(topicName.trim());
+        Page<News> newsPage = newsRepository.findAllByTopic(getPageable(), topic);
+        return mapToNewsResponsePage(newsPage);
     }
 
     @Override
-    @Loggable
-    public Page<News> fetchByAuthorUsername(String username) {
-        User author = userService.fetchByUsername(username);
-        Pageable pageable = getPageable();
-        return newsRepository.findAllByAuthor(pageable, author);
+    public Page<NewsResponse> fetchByAuthorUsername(String username) {
+        User author = userService.fetchByUsername(username.trim());
+        Page<News> newsPage = newsRepository.findAllByAuthor(getPageable(), author);
+        return mapToNewsResponsePage(newsPage);
     }
 
     @Override
-    public News fetchNewsByMostLikes() {
-        return newsRepository.findNewsWithMostLikes().orElse(new News());
+    public NewsResponse fetchNewsByMostLikes() {
+        News news = newsRepository.findNewsWithMostLikes()
+                .orElseThrow(() -> new ResourceNotFoundException("No news was found"));
+        return NewsResponse.mapToResponse(news);
     }
 
-    @Override
-    public Integer fetchCountByTopic(String topicName) {
-        Topic topic = topicService.fetchByTopicName(topicName);
-        return newsRepository.countNewsByTopic(topic);
+
+    private Page<NewsResponse> mapToNewsResponsePage(Page<News> newsPage) {
+        List<NewsResponse> responseList = newsPage.getContent()
+                .stream()
+                .map(NewsResponse::mapToResponse)
+                .toList();
+        return new PageImpl<>(responseList, getPageable(), newsPage.getTotalPages());
+    }
+
+    private void isAuthor(Authentication authentication) {
+        String username = (String) authentication.getPrincipal();
+        if (!userService.isAuthor(username)) {
+            throw new NoAuthorityException("User has no authority to perform actions on this route.");
+        }
     }
 
 }
