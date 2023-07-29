@@ -21,7 +21,7 @@ public class TopicServiceImpl implements TopicService {
     @Transactional(readOnly = true)
     public Topic fetchByTopicName(String topicName) {
         return topicRepository.findByTopicName(topicName)
-                .orElseThrow(() -> new ResourceNotFoundException("Role is not found: " + topicName.trim()));
+                .orElseThrow(() -> new ResourceNotFoundException("Topic is not found: " + topicName.trim()));
     }
 
 }

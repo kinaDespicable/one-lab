@@ -58,7 +58,7 @@ public class NewsServiceImpl implements NewsService {
                 .status(CREATED)
                 .statusCode(CREATED.value())
                 .timestamp(LocalDateTime.now())
-                .data(response)
+                .createdObject(response)
                 .build();
     }
 

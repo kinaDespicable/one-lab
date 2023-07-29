@@ -8,7 +8,9 @@ import one.lab.firstpractice.model.dto.response.CreatedResponse;
 import one.lab.firstpractice.model.dto.response.user.UserResponse;
 import one.lab.firstpractice.service.UserService;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -29,7 +31,9 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CreatedResponse> createUser(@RequestBody @Valid CreateUserRequest createUserRequest){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return new ResponseEntity<>(userService.createUser(authentication, createUserRequest), HttpStatus.CREATED);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(userService.createUser(authentication, createUserRequest), headers, HttpStatus.CREATED);
     }
 
     @LoggableRequest
@@ -51,7 +55,7 @@ public class UserController {
     @LoggableRequest
     @GetMapping("/fetch-authors")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Page<UserResponse>> getAuhtors(){
+    public ResponseEntity<Page<UserResponse>> getAuthors(){
         return new ResponseEntity<>(userService.fetchAllAuthors(), HttpStatus.OK);
     }
 

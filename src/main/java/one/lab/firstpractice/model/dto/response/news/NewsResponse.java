@@ -2,8 +2,10 @@ package one.lab.firstpractice.model.dto.response.news;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import one.lab.firstpractice.model.dto.response.user.UserResponse;
 import one.lab.firstpractice.model.entity.News;
 
@@ -11,6 +13,8 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class NewsResponse{
 
     @JsonProperty("id")

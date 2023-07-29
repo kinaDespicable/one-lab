@@ -58,12 +58,13 @@ public class UserServiceImpl implements UserService, Validatable<CreateUserReque
                 .build();
 
         User savedUser = userRepository.save(user);
+        var userResponse = UserResponse.mapToResponse(savedUser);
 
         return CreatedResponse.builder()
                 .status(HttpStatus.CREATED)
                 .statusCode(HttpStatus.CREATED.value())
                 .timestamp(LocalDateTime.now())
-                .data(UserResponse.mapToResponse(savedUser))
+                .createdObject(userResponse)
                 .build();
     }
 
@@ -84,7 +85,7 @@ public class UserServiceImpl implements UserService, Validatable<CreateUserReque
     @Override
     public UserResponse fetchById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with id: " + id + "not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User with id: " + id + " not found"));
         return UserResponse.mapToResponse(user);
     }
 

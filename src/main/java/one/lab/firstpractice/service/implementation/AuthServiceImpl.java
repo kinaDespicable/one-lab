@@ -62,7 +62,7 @@ public class AuthServiceImpl implements AuthService, Validatable<RegistrationReq
                 .status(HttpStatus.CREATED)
                 .statusCode(HttpStatus.CREATED.value())
                 .timestamp(LocalDateTime.now())
-                .data(userResponse)
+                .createdObject(userResponse)
                 .build();
     }
 

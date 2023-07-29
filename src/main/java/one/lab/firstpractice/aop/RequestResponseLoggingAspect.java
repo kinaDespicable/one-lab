@@ -62,7 +62,7 @@ public class RequestResponseLoggingAspect {
         return headers.toString();
     }
 
-    private String getUsernameFromAuthentication() {
+    String getUsernameFromAuthentication() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             return authentication.getName();
@@ -74,7 +74,6 @@ public class RequestResponseLoggingAspect {
         try {
             return objectMapper.writeValueAsString(responseEntity.getBody());
         } catch (Exception e) {
-            // Handle JSON serialization exception, if any
             return "Unable to extract response body as JSON.";
         }
     }
