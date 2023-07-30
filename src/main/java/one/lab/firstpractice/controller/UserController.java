@@ -6,7 +6,8 @@ import one.lab.firstpractice.annotation.LoggableRequest;
 import one.lab.firstpractice.model.dto.request.CreateUserRequest;
 import one.lab.firstpractice.model.dto.response.CreatedResponse;
 import one.lab.firstpractice.model.dto.response.user.UserResponse;
-import one.lab.firstpractice.service.UserService;
+import one.lab.firstpractice.service.facade.CreateResourceFacade;
+import one.lab.firstpractice.service.facade.ReadResourceFacade;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -24,16 +25,17 @@ import java.util.Optional;
 @RequestMapping("/user")
 public class UserController {
 
-    private final UserService userService;
+    private final ReadResourceFacade readResourceFacade;
+    private final CreateResourceFacade createResourceFacade;
 
     @LoggableRequest
     @PostMapping("/register")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<CreatedResponse> createUser(@RequestBody @Valid CreateUserRequest createUserRequest){
+    public ResponseEntity<CreatedResponse> createUser(@RequestBody @Valid CreateUserRequest createUserRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(userService.createUser(authentication, createUserRequest), headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(createResourceFacade.createUser(authentication, createUserRequest), headers, HttpStatus.CREATED);
     }
 
     @LoggableRequest
@@ -42,37 +44,37 @@ public class UserController {
     public ResponseEntity<Page<UserResponse>> getAll(@RequestParam(name = "page", required = false) Optional<Integer> pageOptional,
                                                      @RequestParam(name = "size", required = false) Optional<Integer> sizeOptional,
                                                      @RequestParam(name = "sort", required = false) Optional<String> sortOptional) {
-        return new ResponseEntity<>(userService.fetchAll(pageOptional, sizeOptional, sortOptional), HttpStatus.OK);
+        return new ResponseEntity<>(readResourceFacade.getAllUsers(pageOptional, sizeOptional, sortOptional), HttpStatus.OK);
     }
 
     @LoggableRequest
     @GetMapping("/fetch-admins")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Page<UserResponse>> getAdmins(){
-        return new ResponseEntity<>(userService.fetchAllAdmins(), HttpStatus.OK);
+    public ResponseEntity<Page<UserResponse>> getAdmins() {
+        return new ResponseEntity<>(readResourceFacade.getAllAdmins(), HttpStatus.OK);
     }
 
     @LoggableRequest
     @GetMapping("/fetch-authors")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Page<UserResponse>> getAuthors(){
-        return new ResponseEntity<>(userService.fetchAllAuthors(), HttpStatus.OK);
+    public ResponseEntity<Page<UserResponse>> getAuthors() {
+        return new ResponseEntity<>(readResourceFacade.getAllAuthors(), HttpStatus.OK);
     }
 
     @LoggableRequest
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserResponse> getById(@PathVariable Long id){
-        return new ResponseEntity<>(userService.fetchById(id), HttpStatus.OK);
+    public ResponseEntity<UserResponse> getById(@PathVariable Long id) {
+        return new ResponseEntity<>(readResourceFacade.getUserById(id), HttpStatus.OK);
     }
 
     @LoggableRequest
     @GetMapping("/profile")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<UserResponse> getCurrentUser(){
+    public ResponseEntity<UserResponse> getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = (String) authentication.getPrincipal();
-        return new ResponseEntity<>(userService.fetchCurrentUser(username), HttpStatus.OK);
+        return new ResponseEntity<>(readResourceFacade.getCurrentUser(username), HttpStatus.OK);
     }
 
 }

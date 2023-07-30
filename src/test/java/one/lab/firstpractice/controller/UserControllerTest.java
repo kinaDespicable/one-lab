@@ -7,6 +7,8 @@ import one.lab.firstpractice.model.dto.request.CreateUserRequest;
 import one.lab.firstpractice.model.dto.response.CreatedResponse;
 import one.lab.firstpractice.model.dto.response.user.UserResponse;
 import one.lab.firstpractice.service.UserService;
+import one.lab.firstpractice.service.facade.CreateResourceFacade;
+import one.lab.firstpractice.service.facade.ReadResourceFacade;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -39,7 +41,10 @@ class UserControllerTest {
     private MockMvc mockMvc;
 
     @Mock
-    private UserService userService;
+    private CreateResourceFacade createResourceFacade;
+
+    @Mock
+    private ReadResourceFacade readResourceFacade;
 
     @InjectMocks
     private UserController userController;
@@ -69,7 +74,7 @@ class UserControllerTest {
                 HttpStatus.CREATED.value(),
                 LocalDateTime.now(),
                 userResponse);
-        when(userService.createUser(any(Authentication.class), any(CreateUserRequest.class))).thenReturn(createdResponse);
+        when(createResourceFacade.createUser(any(Authentication.class), any(CreateUserRequest.class))).thenReturn(createdResponse);
 
         mockMvc.perform(post("/user/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -86,7 +91,7 @@ class UserControllerTest {
         String sortField = "username";
         Page<UserResponse> userPage = createMockUserPage();
 
-        when(userService.fetchAll(any(), any(), any())).thenReturn(userPage);
+        when(readResourceFacade.getAllUsers(any(), any(), any())).thenReturn(userPage);
 
         mockMvc.perform(get("/user/fetch-all")
                         .param("page", String.valueOf(pageNumber))
@@ -98,7 +103,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.content").isArray())
                 .andExpect(jsonPath("$.content[0].username").value("johndoe"));
 
-        verify(userService, times(1)).fetchAll(any(), any(), any());
+        verify(readResourceFacade, times(1)).getAllUsers(any(), any(), any());
     }
 
     @Test
@@ -106,7 +111,7 @@ class UserControllerTest {
     void testGetAdmins() throws Exception {
         Page<UserResponse> adminsPage = createMockAdminsPage();
 
-        when(userService.fetchAllAdmins()).thenReturn(adminsPage);
+        when(readResourceFacade.getAllAdmins()).thenReturn(adminsPage);
 
         mockMvc.perform(get("/user/fetch-admins")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -115,7 +120,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.content").isArray())
                 .andExpect(jsonPath("$.content[0].username").value("admin1"));
 
-        verify(userService, times(1)).fetchAllAdmins();
+        verify(readResourceFacade, times(1)).getAllAdmins();
     }
 
     @Test
@@ -123,7 +128,7 @@ class UserControllerTest {
     void testGetAuthors_Successful() throws Exception {
         Page<UserResponse> authorsPage = createMockAuthorsPage();
 
-        when(userService.fetchAllAuthors()).thenReturn(authorsPage);
+        when(readResourceFacade.getAllAuthors()).thenReturn(authorsPage);
 
         mockMvc.perform(get("/user/fetch-authors")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -132,7 +137,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.content").isArray())
                 .andExpect(jsonPath("$.content[0].username").value("author1"));
 
-        verify(userService, times(1)).fetchAllAuthors();
+        verify(readResourceFacade, times(1)).getAllAuthors();
     }
 
     @Test
@@ -146,14 +151,14 @@ class UserControllerTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.getPrincipal()).thenReturn("johndoe");
 
-        when(userService.fetchCurrentUser("johndoe")).thenReturn(currentUserResponse);
+        when(readResourceFacade.getCurrentUser("johndoe")).thenReturn(currentUserResponse);
 
         mockMvc.perform(get("/user/profile")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.username").value("johndoe"));
-        verify(userService, times(1)).fetchCurrentUser("johndoe");
+        verify(readResourceFacade, times(1)).getCurrentUser("johndoe");
     }
 
     private String asJsonString(Object obj) throws Exception {

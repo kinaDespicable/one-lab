@@ -34,8 +34,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers(toH2Console()).permitAll();
                     auth.requestMatchers("/auth/**").permitAll();
-                    auth.requestMatchers("/news/**").hasAnyRole("AUTHOR", "ADMIN");
-                    auth.requestMatchers("/news/**").hasAnyRole("AUTHOR", "ADMIN");
                     auth.anyRequest().authenticated();
                 })
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))

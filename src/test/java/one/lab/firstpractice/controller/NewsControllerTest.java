@@ -1,8 +1,13 @@
 package one.lab.firstpractice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import one.lab.firstpractice.model.dto.request.NewsRequest;
+import one.lab.firstpractice.model.dto.response.CreatedResponse;
 import one.lab.firstpractice.model.dto.response.news.NewsResponse;
+import one.lab.firstpractice.model.dto.response.user.UserResponse;
 import one.lab.firstpractice.service.NewsService;
+import one.lab.firstpractice.service.facade.CreateResourceFacade;
+import one.lab.firstpractice.service.facade.ReadResourceFacade;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -10,15 +15,19 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class NewsControllerTest {
@@ -27,6 +36,12 @@ class NewsControllerTest {
 
     @Mock
     private NewsService newsService;
+
+    @Mock
+    private CreateResourceFacade createResourceFacade;
+
+    @Mock
+    private ReadResourceFacade readResourceFacade;
 
     @InjectMocks
     private NewsController newsController;
@@ -40,10 +55,38 @@ class NewsControllerTest {
     }
 
     @Test
+    void testCreate_SuccessfulCreation() throws Exception {
+        NewsRequest newsRequest =
+                new NewsRequest("Title", "Content", "Sport");
+
+        NewsResponse newsResponse = NewsResponse.builder()
+                .title("Title")
+                .content("Content")
+                .likes(0)
+                .publishedAt(LocalDateTime.now())
+                .author(new UserResponse(1L, "johnDoe", "John", "Doe"))
+                .topic("Sport")
+                .build();
+
+        CreatedResponse createdResponse =
+                new CreatedResponse(HttpStatus.CREATED, HttpStatus.CREATED.value(), LocalDateTime.now(), newsResponse);
+
+
+        when(createResourceFacade.createNews(any(NewsRequest.class), any(Authentication.class))).thenReturn(createdResponse);
+
+        mockMvc.perform(post("/news/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(newsRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+    }
+
+    @Test
     void testGetById() throws Exception {
         Long newsId = 1L;
         NewsResponse newsResponse = createMockNewsResponse();
-        when(newsService.fetchById(newsId)).thenReturn(newsResponse);
+        when(readResourceFacade.getNewsById(newsId)).thenReturn(newsResponse);
 
         mockMvc.perform(get("/news/{id}", newsId)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -52,14 +95,14 @@ class NewsControllerTest {
                 .andExpect(jsonPath("$.title").value("Test News"))
                 .andExpect(jsonPath("$.content").value("This is a test news item."));
 
-        verify(newsService, times(1)).fetchById(newsId);
+        verify(readResourceFacade, times(1)).getNewsById(newsId);
     }
 
     @Test
     void testGetAllByAuthor() throws Exception {
         String authorUsername = "johndoe";
         Page<NewsResponse> newsResponsePage = createMockNewsResponsePage();
-        when(newsService.fetchByAuthorUsername(authorUsername)).thenReturn(newsResponsePage);
+        when(readResourceFacade.getNewsByAuthorUsername(authorUsername)).thenReturn(newsResponsePage);
 
         mockMvc.perform(get("/news/by-author")
                         .param("author", authorUsername)
@@ -71,14 +114,14 @@ class NewsControllerTest {
                 .andExpect(jsonPath("$.content[1].title").value("Test News 2"))
                 .andExpect(jsonPath("$.content[1].content").value("This is a test news item 2."));
 
-        verify(newsService, times(1)).fetchByAuthorUsername(authorUsername);
+        verify(readResourceFacade, times(1)).getNewsByAuthorUsername(authorUsername);
     }
 
     @Test
     void testGetByTitle() throws Exception {
         String newsTitle = "Test News";
         NewsResponse newsResponse = createMockNewsResponse();
-        when(newsService.fetchByTitle(newsTitle)).thenReturn(newsResponse);
+        when(readResourceFacade.getNewsByTitle(newsTitle)).thenReturn(newsResponse);
 
         mockMvc.perform(get("/news/title")
                         .param("title", newsTitle)
@@ -88,13 +131,13 @@ class NewsControllerTest {
                 .andExpect(jsonPath("$.title").value("Test News"))
                 .andExpect(jsonPath("$.content").value("This is a test news item."));
 
-        verify(newsService, times(1)).fetchByTitle(newsTitle);
+        verify(readResourceFacade, times(1)).getNewsByTitle(newsTitle);
     }
 
     @Test
     void testGetAll() throws Exception {
         Page<NewsResponse> newsResponsePage = createMockNewsResponsePage();
-        when(newsService.fetchAll()).thenReturn(newsResponsePage);
+        when(readResourceFacade.getAllNews()).thenReturn(newsResponsePage);
 
         mockMvc.perform(get("/news/all")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -105,7 +148,7 @@ class NewsControllerTest {
                 .andExpect(jsonPath("$.content[1].title").value("Test News 2"))
                 .andExpect(jsonPath("$.content[1].content").value("This is a test news item 2."));
 
-        verify(newsService, times(1)).fetchAll();
+        verify(readResourceFacade, times(1)).getAllNews();
     }
 
 
@@ -113,7 +156,7 @@ class NewsControllerTest {
     void testGetAllByTopic() throws Exception {
         String topicName = "Sports";
         Page<NewsResponse> newsResponsePage = createMockNewsResponsePage();
-        when(newsService.fetchByTopicName(topicName)).thenReturn(newsResponsePage);
+        when(readResourceFacade.getNewsByTopicName(topicName)).thenReturn(newsResponsePage);
 
         mockMvc.perform(get("/news/by-topic-name")
                         .param("topic", topicName)
@@ -125,13 +168,13 @@ class NewsControllerTest {
                 .andExpect(jsonPath("$.content[1].title").value("Test News 2"))
                 .andExpect(jsonPath("$.content[1].content").value("This is a test news item 2."));
 
-        verify(newsService, times(1)).fetchByTopicName(topicName);
+        verify(readResourceFacade, times(1)).getNewsByTopicName(topicName);
     }
 
     @Test
     void testGetNewsWithMostLikes() throws Exception {
         NewsResponse newsWithMostLikes = createMockNewsResponse();
-        when(newsService.fetchNewsByMostLikes()).thenReturn(newsWithMostLikes);
+        when(readResourceFacade.getNewsByMostLikes()).thenReturn(newsWithMostLikes);
 
         mockMvc.perform(get("/news/with-most-likes")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -140,7 +183,7 @@ class NewsControllerTest {
                 .andExpect(jsonPath("$.title").value("Test News")) // Assuming NewsResponse has a "title" field
                 .andExpect(jsonPath("$.content").value("This is a test news item.")); // Assuming NewsResponse has a "content" field
 
-        verify(newsService, times(1)).fetchNewsByMostLikes();
+        verify(readResourceFacade, times(1)).getNewsByMostLikes();
     }
 
     private NewsResponse createMockNewsResponse() {
@@ -161,6 +204,11 @@ class NewsControllerTest {
         newsResponse2.setContent("This is a test news item 2.");
 
         return new PageImpl<>(List.of(newsResponse1, newsResponse2));
+    }
+
+    private String asJsonString(Object obj) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsString(obj);
     }
 
 }

@@ -1,7 +1,7 @@
 package one.lab.firstpractice.service.implementation;
 
 import one.lab.firstpractice.config.jwt.JwtService;
-import one.lab.firstpractice.config.security.SecurityUser;
+import one.lab.firstpractice.config.security.SecurityUserAdapter;
 import one.lab.firstpractice.model.dto.request.LoginRequest;
 import one.lab.firstpractice.model.dto.request.RegistrationRequest;
 import one.lab.firstpractice.model.dto.response.CreatedResponse;
@@ -20,8 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -118,7 +116,7 @@ class AuthServiceImplTest {
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(null);
 
-        UserDetails userDetails = new SecurityUser(user);
+        UserDetails userDetails = new SecurityUserAdapter(user);
 
         when(userDetailsService.loadUserByUsername(username)).thenReturn(userDetails);
         when(jwtService.generateToken(any(Map.class), eq(userDetails))).thenReturn("sampleJwtToken");

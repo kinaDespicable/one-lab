@@ -29,7 +29,7 @@ public class AuthenticationBeans {
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> userRepository.findByUsername(username)
-                .map(SecurityUser::new)
+                .map(SecurityUserAdapter::new)
                 .orElseThrow(() -> new UsernameNotFoundException("Username not found."));
     }
 
