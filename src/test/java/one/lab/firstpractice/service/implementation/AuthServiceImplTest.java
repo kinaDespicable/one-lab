@@ -5,7 +5,7 @@ import one.lab.firstpractice.config.security.SecurityUserAdapter;
 import one.lab.firstpractice.model.dto.request.LoginRequest;
 import one.lab.firstpractice.model.dto.request.RegistrationRequest;
 import one.lab.firstpractice.model.dto.response.CreatedResponse;
-import one.lab.firstpractice.model.dto.response.LoginResponse;
+import one.lab.firstpractice.model.dto.response.auth.LoginResponse;
 import one.lab.firstpractice.model.dto.response.user.UserResponse;
 import one.lab.firstpractice.model.entity.Role;
 import one.lab.firstpractice.model.entity.User;

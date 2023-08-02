@@ -1,6 +1,7 @@
 package one.lab.firstpractice.service.facade;
 
 import lombok.RequiredArgsConstructor;
+import one.lab.firstpractice.annotation.ComputableFutureLogger;
 import one.lab.firstpractice.model.dto.response.news.NewsResponse;
 import one.lab.firstpractice.model.dto.response.user.UserResponse;
 import one.lab.firstpractice.service.NewsService;
@@ -23,6 +24,7 @@ public class ReadResourceFacade {
         return userService.fetchAll(pageOptional, sizeOptional, sortOptional);
     }
 
+    @ComputableFutureLogger
     public UserResponse getUserById(Long id) {
         return userService.fetchById(id);
     }
@@ -32,11 +34,23 @@ public class ReadResourceFacade {
         return userService.fetchCurrentUser(normalizedString);
     }
 
+    @ComputableFutureLogger
     public Page<UserResponse> getAllAdmins() {
+        try{
+            Thread.sleep(3000);
+        }catch (InterruptedException e){
+            e.printStackTrace();
+        }
         return userService.fetchAllAdmins();
     }
 
+    @ComputableFutureLogger
     public Page<UserResponse> getAllAuthors() {
+        try{
+            Thread.sleep(5000);
+        }catch (InterruptedException e){
+            e.printStackTrace();
+        }
         return userService.fetchAllAuthors();
     }
 

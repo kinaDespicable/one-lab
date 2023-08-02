@@ -51,7 +51,9 @@ public class UserController {
     @GetMapping("/fetch-admins")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserResponse>> getAdmins() {
+
         return new ResponseEntity<>(readResourceFacade.getAllAdmins(), HttpStatus.OK);
+
     }
 
     @LoggableRequest

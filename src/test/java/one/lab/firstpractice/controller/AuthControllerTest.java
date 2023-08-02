@@ -4,25 +4,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import one.lab.firstpractice.model.dto.request.LoginRequest;
 import one.lab.firstpractice.model.dto.request.RegistrationRequest;
 import one.lab.firstpractice.model.dto.response.CreatedResponse;
-import one.lab.firstpractice.model.dto.response.LoginResponse;
+import one.lab.firstpractice.model.dto.response.auth.LoginResponse;
 import one.lab.firstpractice.model.dto.response.user.UserResponse;
 import one.lab.firstpractice.service.AuthService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import java.time.LocalDateTime;
-import java.time.Month;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

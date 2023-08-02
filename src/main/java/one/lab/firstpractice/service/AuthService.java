@@ -3,7 +3,7 @@ package one.lab.firstpractice.service;
 import one.lab.firstpractice.model.dto.request.LoginRequest;
 import one.lab.firstpractice.model.dto.request.RegistrationRequest;
 import one.lab.firstpractice.model.dto.response.CreatedResponse;
-import one.lab.firstpractice.model.dto.response.LoginResponse;
+import one.lab.firstpractice.model.dto.response.auth.LoginResponse;
 
 public interface AuthService {
 

@@ -1,13 +1,16 @@
 package one.lab.firstpractice.model.dto.response.user;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import one.lab.firstpractice.model.entity.User;
 
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class UserResponse {
 

@@ -6,7 +6,7 @@ import one.lab.firstpractice.annotation.LoggableRequest;
 import one.lab.firstpractice.model.dto.request.LoginRequest;
 import one.lab.firstpractice.model.dto.request.RegistrationRequest;
 import one.lab.firstpractice.model.dto.response.CreatedResponse;
-import one.lab.firstpractice.model.dto.response.LoginResponse;
+import one.lab.firstpractice.model.dto.response.auth.LoginResponse;
 import one.lab.firstpractice.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

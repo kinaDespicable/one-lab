@@ -1,4 +1,4 @@
-package one.lab.firstpractice.model.dto.response;
+package one.lab.firstpractice.model.dto.response.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
